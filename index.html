@@ -1,1 +1,398 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Manvaar Catering Menu Selector</title>
 
+<style>
+*{box-sizing:border-box}
+
+body{
+margin:0;
+font-family:Arial,sans-serif;
+background:#fff8ee;
+color:#30241d;
+}
+
+.hero{
+background:linear-gradient(135deg,#7b1f16,#b64b25);
+color:white;
+padding:30px 18px;
+text-align:center;
+}
+
+.hero h1{
+margin:0;
+font-size:30px;
+}
+
+.hero p{
+margin:8px 0 0;
+}
+
+.wrap{
+max-width:760px;
+margin:auto;
+padding:18px;
+}
+
+.card{
+background:#fff;
+border-radius:16px;
+padding:18px;
+margin-bottom:16px;
+box-shadow:0 4px 16px #00000012;
+}
+
+.grid{
+display:grid;
+grid-template-columns:1fr 1fr;
+gap:12px;
+}
+
+input,textarea{
+width:100%;
+padding:12px;
+border:1px solid #ddd;
+border-radius:10px;
+font-size:16px;
+}
+
+.cat h2{
+color:#8b2d1e;
+border-bottom:1px solid #eee;
+padding-bottom:8px;
+}
+
+.item{
+display:flex;
+align-items:center;
+gap:10px;
+padding:10px 2px;
+border-bottom:1px dashed #eee;
+}
+
+.item input{
+width:22px;
+height:22px;
+}
+
+.summary{
+background:#fff4dc;
+border:1px solid #ecd09b;
+}
+
+.summary h2{
+margin-top:0;
+}
+
+.empty{
+color:#777;
+}
+
+.wa{
+display:block;
+width:100%;
+border:0;
+border-radius:14px;
+padding:16px;
+background:#25D366;
+color:#fff;
+font-size:18px;
+font-weight:bold;
+cursor:pointer;
+}
+
+.note{
+text-align:center;
+font-size:13px;
+color:#777;
+margin-top:12px;
+}
+
+@media(max-width:600px){
+.grid{
+grid-template-columns:1fr;
+}
+.hero h1{
+font-size:25px;
+}
+}
+</style>
+</head>
+
+<body>
+
+<div class="hero">
+<h1>MANVAAR RESTAURANT</h1>
+<p>Catering Menu Selector • Al Karama, Dubai</p>
+<p>Select your favourites and send your menu directly on WhatsApp</p>
+</div>
+
+<div class="wrap">
+
+<div class="card">
+<div class="grid">
+
+<input id="name" placeholder="Customer Name">
+
+<input id="date" type="date">
+
+<input id="pax" type="number" placeholder="Number of Guests">
+
+<input id="event" placeholder="Event / Occasion">
+
+</div>
+</div>
+
+<div id="menus"></div>
+
+<div class="card">
+
+<h2>Special Requirements</h2>
+
+<textarea
+id="remarks"
+rows="3"
+placeholder="Jain / No onion garlic / spice preference / other notes">
+</textarea>
+
+</div>
+
+<div class="card summary">
+
+<h2>Your Selected Menu</h2>
+
+<div id="summary" class="empty">
+Please tick items from the menu above.
+</div>
+
+</div>
+
+<button class="wa" onclick="sendWA()">
+✓ Send Selected Menu to Manvaar on WhatsApp
+</button>
+
+<div class="note">
+Your selections will open in WhatsApp as a ready-to-send message.
+</div>
+
+</div>
+
+<script>
+
+const menu = {
+
+"Welcome Drinks":[
+"Aam Panna",
+"Jaljeera",
+"Buttermilk"
+],
+
+"Starters":[
+"Paneer Achari Tikka",
+"Veg Seekh Kebab",
+"Chicken Malai Tikka",
+"Chicken Tangdi Kebab"
+],
+
+"Main Course":[
+"Dal Banjara",
+"Kadhai Paneer",
+"Sev Tamatar Sabzi",
+"Laal Maas"
+],
+
+"Rice & Breads":[
+"Jeera Rice",
+"Veg Pulao",
+"Tawa Chapati",
+"Butter Naan",
+"Garlic Naan",
+"Puri"
+],
+
+"Desserts":[
+"Moong Dal Halwa",
+"Ghewar with Rabadi",
+"Shahi Tukda"
+]
+
+};
+
+const box = document.getElementById('menus');
+
+Object.entries(menu).forEach(([cat,items])=>{
+
+let d = document.createElement('div');
+
+d.className = 'card cat';
+
+d.innerHTML =
+'<h2>'+cat+'</h2>' +
+
+items.map(i =>
+
+`<label class="item">
+
+<input
+type="checkbox"
+data-cat="${cat}"
+value="${i}"
+onchange="update()">
+
+<span>${i}</span>
+
+</label>`
+
+).join('');
+
+box.appendChild(d);
+
+});
+
+
+function chosen(){
+
+let x = {};
+
+document
+.querySelectorAll('input[type=checkbox]:checked')
+.forEach(c=>{
+
+(x[c.dataset.cat] ??= []).push(c.value);
+
+});
+
+return x;
+
+}
+
+
+function update(){
+
+let x = chosen();
+
+let s = document.getElementById('summary');
+
+if(!Object.keys(x).length){
+
+s.className='empty';
+
+s.innerHTML=
+'Please tick items from the menu above.';
+
+return;
+
+}
+
+s.className='';
+
+s.innerHTML =
+
+Object.entries(x)
+
+.map(([c,a]) =>
+
+`<p>
+<b>${c}</b><br>
+✓ ${a.join('<br>✓ ')}
+</p>`
+
+).join('');
+
+}
+
+
+function sendWA(){
+
+let x = chosen();
+
+if(!Object.keys(x).length){
+
+alert('Please select at least one menu item.');
+
+return;
+
+}
+
+let n =
+document.getElementById('name').value || '-';
+
+let d =
+document.getElementById('date').value || '-';
+
+let p =
+document.getElementById('pax').value || '-';
+
+let e =
+document.getElementById('event').value || '-';
+
+let r =
+document.getElementById('remarks').value || '-';
+
+
+let lines = [
+
+'Hello Manvaar Restaurant,',
+
+'I would like a catering quotation.',
+
+'',
+
+'Customer: '+n,
+
+'Event Date: '+d,
+
+'Guests: '+p,
+
+'Event: '+e,
+
+'',
+
+'SELECTED MENU'
+
+];
+
+
+Object.entries(x).forEach(([c,a])=>{
+
+lines.push('');
+
+lines.push('*'+c+'*');
+
+a.forEach(i=>
+lines.push('✓ '+i)
+);
+
+});
+
+
+lines.push('');
+
+lines.push(
+'Special Requirements: '+r
+);
+
+lines.push('');
+
+lines.push(
+'Please share quotation and availability. Thank you.'
+);
+
+
+window.location.href =
+
+'https://wa.me/971555523209?text=' +
+
+encodeURIComponent(
+lines.join('\n')
+);
+
+}
+
+</script>
+
+</body>
+</html>
